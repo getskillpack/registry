@@ -5,6 +5,7 @@
 ## Содержимое
 
 - **[API.md](./API.md)** — контракт HTTP API (`/api/v1`).
+- **[docs/PUBLIC_REGISTRY_RUNBOOK.md](./docs/PUBLIC_REGISTRY_RUNBOOK.md)** — публичный инстанс: SLO/SLI, секреты, бэкапы, алёрты, чеклист go-live и границы prod/stage для согласования с FE2.
 - **Сервер на Go** (`cmd/registry`) — файловое хранилище под `./data`, маршруты из `API.md` + выдача архивов по `GET /downloads/{sha256}.tar.gz`.
 
 ### Сборка и запуск
