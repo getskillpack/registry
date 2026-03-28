@@ -11,6 +11,7 @@ The canonical specification lives in **[docs/registry-api.md](./docs/registry-ap
 
 - `GET /healthz` — liveness (`200`, body `ok`).
 - `GET /readyz` — storage readiness: data root and `skills/` + `archives/` exist and are directories (`200` or `503`, body `not ready` on failure).
+- `GET /version` — build version as plain text (same as `registry -version`; see root README for `-ldflags`).
 
 ## Metrics (optional)
 

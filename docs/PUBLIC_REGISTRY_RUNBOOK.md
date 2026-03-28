@@ -10,7 +10,7 @@
 
 - Один бинарь `registry` (`cmd/registry`), Go 1.22+.
 - **Файловое хранилище** в каталоге `REGISTRY_DATA_DIR` (по умолчанию `./data`): метаданные и архивы скиллов.
-- HTTP: API под префиксом `/api/v1`, выдача архивов `GET /downloads/{file}`, liveness `GET /healthz` → `200` и тело `ok\n`, readiness `GET /readyz` (проверка `skills/` и `archives/`). Опционально `GET /metrics` при `REGISTRY_ENABLE_METRICS`.
+- HTTP: API под префиксом `/api/v1`, выдача архивов `GET /downloads/{file}`, liveness `GET /healthz` → `200` и тело `ok\n`, readiness `GET /readyz` (проверка `skills/` и `archives/`), `GET /version` — текстовая версия билда. Опционально `GET /metrics` при `REGISTRY_ENABLE_METRICS`.
 - TLS и публичный DNS обычно на **обратном прокси** (nginx, Caddy, cloud LB); приложение слушает внутренний `REGISTRY_LISTEN_ADDR`.
 
 ---

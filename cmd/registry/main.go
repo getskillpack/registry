@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -22,6 +24,13 @@ func metricsEnabled() bool {
 }
 
 func main() {
+	showVersion := flag.Bool("version", false, "print version and exit")
+	flag.Parse()
+	if *showVersion {
+		fmt.Println(registry.Version)
+		os.Exit(0)
+	}
+
 	dataDir := os.Getenv("REGISTRY_DATA_DIR")
 	if dataDir == "" {
 		dataDir = "data"
@@ -60,6 +69,10 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
 	})
+	mux.HandleFunc("GET /version", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte(registry.Version + "\n"))
+	})
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	if strings.EqualFold(strings.TrimSpace(os.Getenv("REGISTRY_LOG_FORMAT")), "json") {
@@ -80,7 +93,7 @@ func main() {
 		RPS:              rps,
 		Burst:            burst,
 		TrustForwarded:   trustFwd,
-		SkipPathPrefixes: []string{"/healthz", "/readyz", "/metrics"},
+		SkipPathPrefixes: []string{"/healthz", "/readyz", "/metrics", "/version"},
 	})(handler)
 	handler = middleware.RequestLog(logger)(handler)
 	if metricsEnabled() {
@@ -110,6 +123,7 @@ func main() {
 	}
 
 	logger.Info("registry listening",
+		slog.String("version", registry.Version),
 		slog.String("addr", addr),
 		slog.String("data", dataDir),
 		slog.Float64("rate_limit_rps", rps),

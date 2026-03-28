@@ -40,4 +40,11 @@ func TestRequireReadToken(t *testing.T) {
 	if rec4.Code != http.StatusOK {
 		t.Fatalf("GET /metrics should skip read token: %d", rec4.Code)
 	}
+
+	req5 := httptest.NewRequest(http.MethodGet, "/version", nil)
+	rec5 := httptest.NewRecorder()
+	h.ServeHTTP(rec5, req5)
+	if rec5.Code != http.StatusOK {
+		t.Fatalf("GET /version should skip read token: %d", rec5.Code)
+	}
 }

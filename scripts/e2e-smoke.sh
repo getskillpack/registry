@@ -34,6 +34,7 @@ for _ in $(seq 1 50); do
 	sleep 0.1
 done
 curl -sf "${BASE_URL}/healthz" >/dev/null
+curl -sf "${BASE_URL}/version" | grep -q .
 
 mkdir -p "${TMP}/pack"
 echo "e2e smoke" >"${TMP}/pack/README.md"

@@ -84,6 +84,7 @@ These paths are served by the reference server for probes and do not use the `Ba
 |--------|------|---------|
 | `GET` | `/healthz` | Liveness — process is up (does not verify storage). |
 | `GET` | `/readyz` | Readiness — data directory layout is usable (`skills/`, `archives/`). Returns `503` if not. |
+| `GET` | `/version` | Plain-text build version (`text/plain`). Same value as `registry -version` (override with `-ldflags` — see repository README). Not under read-token auth. |
 | `GET` | `/metrics` | Prometheus scrape endpoint when `REGISTRY_ENABLE_METRICS` is enabled (not under read-token auth). |
 
 Optional rate limiting, structured request logging, and other server knobs are documented in the repository [README](../README.md).

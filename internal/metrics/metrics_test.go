@@ -8,6 +8,7 @@ func TestRouteTemplate(t *testing.T) {
 		want string
 	}{
 		{"/healthz", "/healthz"},
+		{"/version", "/version"},
 		{"/api/v1/skills", "/api/v1/skills"},
 		{"/api/v1/skills/foo", "/api/v1/skills/{name}"},
 		{"/api/v1/skills/foo/versions/1.0.0", "/api/v1/skills/{name}/versions/{version}"},

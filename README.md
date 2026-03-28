@@ -20,6 +20,18 @@ Requires **Go 1.22+**.
 
 ```bash
 go build -o registry ./cmd/registry
+./registry -version
+```
+
+Release / image builds should stamp the version (also served as `GET /version`):
+
+```bash
+go build -ldflags "-X github.com/getskillpack/registry.Version=1.2.3" -o registry ./cmd/registry
+```
+
+Run with write token:
+
+```bash
 REGISTRY_WRITE_TOKEN='secret' ./registry
 ```
 
@@ -45,6 +57,8 @@ Environment variables:
 Health check: `GET /healthz` → `200 ok` (liveness; does not verify storage).
 
 Readiness: `GET /readyz` → `200 ok` when the data directory and required subfolders are reachable; `503` if storage is not usable.
+
+Build id: `GET /version` (plain text) or `registry -version` — same string as `registry.Version` (default `0.0.0-dev` until set via `-ldflags`).
 
 **Observability:** each response is logged to stderr via `slog` (`method`, `path`, `status`, `duration`, `remote`, `bytes`). With `REGISTRY_ENABLE_METRICS`, also scrape `GET /metrics` (exempt from read-token auth; protect at the edge).
 

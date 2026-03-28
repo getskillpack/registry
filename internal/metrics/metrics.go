@@ -56,7 +56,7 @@ func (m *HTTPMetrics) Handler() http.Handler {
 // RouteTemplate maps a request path to a low-cardinality route label.
 func RouteTemplate(path string) string {
 	switch {
-	case path == "/healthz", path == "/readyz", path == "/metrics":
+	case path == "/healthz", path == "/readyz", path == "/metrics", path == "/version":
 		return path
 	case path == "/api/v1/skills":
 		return "/api/v1/skills"
