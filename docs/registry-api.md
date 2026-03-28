@@ -13,7 +13,13 @@ Base URL: `https://registry.skpkg.org/api/v1`
 
 ## Authentication
 
-All endpoints requiring write access (publish, yank) require a Bearer token in the `Authorization` header.
+**Write** (publish, yank): the server operator sets `REGISTRY_WRITE_TOKEN`; clients send `Authorization: Bearer <token>`. If the token is not configured on the server, mutating routes return `503`.
+
+**Read** (optional): if the operator sets `REGISTRY_READ_TOKEN`, every **`GET`/`HEAD`** to **`/api/v1/*`** and **`/downloads/*`** must include `Authorization: Bearer <read token>` or the server responds with **`401`**. **`POST`** and **`DELETE`** on `/api/v1/*` still use only the **write** token.
+
+The following paths are **not** protected by the read token: **`/healthz`**, **`/readyz`**, and (when enabled) **`/metrics`** — restrict them at the network or ingress layer if needed.
+
+CLI publishing uses `SKILLGET_REGISTRY_TOKEN` / `SKILLGET_TOKEN` for the write Bearer (see repository docs).
 
 ## Endpoints
 
@@ -78,5 +84,6 @@ These paths are served by the reference server for probes and do not use the `Ba
 |--------|------|---------|
 | `GET` | `/healthz` | Liveness — process is up (does not verify storage). |
 | `GET` | `/readyz` | Readiness — data directory layout is usable (`skills/`, `archives/`). Returns `503` if not. |
+| `GET` | `/metrics` | Prometheus scrape endpoint when `REGISTRY_ENABLE_METRICS` is enabled (not under read-token auth). |
 
-Optional rate limiting and request logging are configured via environment variables documented in the repository [README](../README.md).
+Optional rate limiting, structured request logging, and other server knobs are documented in the repository [README](../README.md).
