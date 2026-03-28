@@ -73,7 +73,7 @@ make e2e-smoke
 
 Скрипт поднимает реестр на свободном порту, публикует тестовый скилл `e2e-smoke-skill@1.0.0`, затем вызывает `skillget search` и `skillget install …@1.0.0`.
 
-В CI см. job `e2e-smoke` в [.github/workflows/go.yml](../.github/workflows/go.yml): второй checkout клонирует **приватный** `getskillpack/cli` с токеном из Actions secret **`GETSKILLPACK_ORG_PAT`** (его нужно завести в настройках репозитория/организации для `registry`, с правом чтения `cli`). После настройки секрета workflow **Go** можно перезапустить вручную (**Actions** → **Go** → **Run workflow**), не делая пустой коммит.
+В CI см. job `e2e-smoke` в [.github/workflows/go.yml](../.github/workflows/go.yml): второй checkout клонирует **приватный** `getskillpack/cli` с токеном из Actions secret **`GETSKILLPACK_ORG_PAT`** (его нужно завести в настройках репозитория/организации для `registry`, с правом чтения **и `cli`, и `skillget-manager`** — иначе `go build ./cmd/skillget` не скачает приватный модуль). Дополнительно в job выставляются `GOPRIVATE` / `GONOSUMDB` и `git config url.insteadOf` с тем же PAT для `go`/`git` при загрузке модулей. Job не запускается для PR **из форка** (секреты недоступны). После настройки секрета workflow **Go** можно перезапустить вручную (**Actions** → **Go** → **Run workflow**), не делая пустой коммит.
 
 ## Публичный happy path (вручную)
 

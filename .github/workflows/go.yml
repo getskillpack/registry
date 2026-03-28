@@ -13,6 +13,8 @@ permissions:
 jobs:
   e2e-smoke:
     runs-on: ubuntu-latest
+    # Fork PRs cannot use repository secrets; skip instead of failing checkout / go mod.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -24,6 +26,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+      - name: Go private modules (skillget-manager)
+        run: |
+          echo "GOPRIVATE=github.com/getskillpack/*" >> "$GITHUB_ENV"
+          echo "GONOSUMDB=github.com/getskillpack/*" >> "$GITHUB_ENV"
+          git config --global url."https://x-access-token:${GETSKILLPACK_ORG_PAT}@github.com/getskillpack/".insteadOf "https://github.com/getskillpack/"
+        env:
+          GETSKILLPACK_ORG_PAT: ${{ secrets.GETSKILLPACK_ORG_PAT }}
       - name: skillget ↔ registry smoke
         env:
           SKILLGET_SRC: ${{ github.workspace }}/cli
