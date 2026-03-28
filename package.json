@@ -1,7 +1,7 @@
 {
   "name": "@getskillpack/registry",
   "version": "0.1.0",
-  "description": "Skill registry API spec and backend for getskillpack / skillget.",
+  "description": "Skill registry API spec and backend for getskillpack (see docs/PUBLIC_ECOSYSTEM.md).",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

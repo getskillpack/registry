@@ -10,3 +10,5 @@
 Copy the files from [`templates/repo-starter/`](../templates/repo-starter/) into a new repository root (or use them as the baseline for a GitHub template repository), then replace the placeholders in `README.md`.
 
 See also [REPO_TEMPLATE.md](./REPO_TEMPLATE.md).
+
+When maintaining an **org-level** README or profile index, use [PUBLIC_ECOSYSTEM.md](./PUBLIC_ECOSYSTEM.md) as the canonical list of public repositories so removed or renamed repos do not leave dead links.
