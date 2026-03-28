@@ -2,6 +2,11 @@
 
 Base URL: `https://registry.skpkg.org/api/v1`
 
+## Health and readiness
+
+- `GET /healthz` — процесс жив (`200`, тело `ok`).
+- `GET /readyz` — каталог данных (`REGISTRY_DATA_DIR`) доступен как директория (`200`) или `503`, если монтирование/диск недоступны.
+
 ## Authentication
 
 All endpoints requiring write access (publish, yank) require a Bearer token in the `Authorization` header. The value must match the registry operator’s `REGISTRY_WRITE_TOKEN`.
