@@ -1,4 +1,4 @@
-name: Go
+name: CI
 
 on:
   push:
@@ -10,19 +10,12 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  readme-policy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-      - name: Format
-        run: test -z "$(gofmt -l .)"
-      - name: Test
-        run: |
-          go vet ./...
-          go test ./... -count=1
+      - name: Root README exists
+        run: test -s README.md
       - name: Root README English-only (getskillpack org)
         run: |
           python3 << 'PY'
@@ -34,7 +27,7 @@ jobs:
           if re.search(r"[А-Яа-яЁё]", text):
               print(
                   "Root README must be English-only (Cyrillic not allowed). "
-                  "See docs/ORG_README_POLICY.md"
+                  "See https://github.com/getskillpack/registry/blob/main/docs/ORG_README_POLICY.md"
               )
               sys.exit(1)
           PY

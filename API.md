@@ -1,8 +1,8 @@
 # Registry API Specification
 
-Каноническая спецификация перенесена в **[docs/registry-api.md](./docs/registry-api.md)** — стабильный путь для ссылок из README, маркетинга и сайта.
+The canonical specification lives in **[docs/registry-api.md](./docs/registry-api.md)** — a stable path for links from README, marketing, and the site.
 
-| Где открыть | URL |
-|-------------|-----|
-| GitHub (файл в `main`) | https://github.com/getskillpack/registry/blob/main/docs/registry-api.md |
-| Развёрнутый реестр | `GET /docs/registry-api` на вашем инстансе (например `https://registry.skpkg.org/docs/registry-api`) |
+| Where | URL |
+|-------|-----|
+| GitHub (`main`) | https://github.com/getskillpack/registry/blob/main/docs/registry-api.md |
+| Deployed registry | `GET /docs/registry-api` on your instance (e.g. `https://registry.skpkg.org/docs/registry-api`) |

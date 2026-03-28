@@ -1,6 +1,6 @@
 name: getskillpack org (manual)
 
-# Ручной запуск: не ломает CI на форках, если секрет org отсутствует.
+# Manual dispatch: keeps fork CI green when the org secret is missing.
 on:
   workflow_dispatch:
 
@@ -16,7 +16,7 @@ jobs:
           GETSKILLPACK_ORG_PAT: ${{ secrets.GETSKILLPACK_ORG_PAT }}
         run: |
           if [ -z "$GETSKILLPACK_ORG_PAT" ]; then
-            echo "Добавьте секрет GETSKILLPACK_ORG_PAT: Settings → Secrets and variables → Actions."
+            echo "Add secret GETSKILLPACK_ORG_PAT: Settings → Secrets and variables → Actions."
             exit 1
           fi
           curl -sS -f -H "Authorization: Bearer ${GETSKILLPACK_ORG_PAT}" -H "Accept: application/vnd.github+json" \

@@ -29,7 +29,7 @@ jobs:
           chmod +x scripts/pack-example.sh
           scripts/pack-example.sh
           cmp -s /tmp/hello-skill-0.1.0.committed.tar.gz examples/dist/hello-skill-0.1.0.tar.gz || {
-            echo "examples/dist/hello-skill-0.1.0.tar.gz не совпадает с выводом scripts/pack-example.sh — пересоберите и закоммитьте."
+            echo "examples/dist/hello-skill-0.1.0.tar.gz does not match scripts/pack-example.sh output — rebuild and commit."
             exit 1
           }
           tar -tzf examples/dist/hello-skill-0.1.0.tar.gz | grep -qx SKILL.md
