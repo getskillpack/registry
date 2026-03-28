@@ -4,7 +4,9 @@ Base URL: `https://registry.skpkg.org/api/v1`
 
 ## Authentication
 
-All endpoints requiring write access (publish, yank) require a Bearer token in the `Authorization` header.
+All endpoints requiring write access (publish, yank) require a Bearer token in the `Authorization` header. The value must match the registry operator’s `REGISTRY_WRITE_TOKEN`.
+
+**CLI clients** (`skillget publish`): set **`SKILLGET_REGISTRY_TOKEN`** (canonical) or **`SKILLGET_TOKEN`** (short alias) in the environment so the client sends `Authorization: Bearer <token>`.
 
 ## Endpoints
 
@@ -54,7 +56,12 @@ Get metadata and download URL for a specific version.
 
 ### 4. `POST /skills`
 Publish a new skill or a new version of an existing skill.
-Requires multipart/form-data with `manifest` (JSON) and `archive` (file).
+Requires `multipart/form-data` with:
+
+- **`manifest`** (string field): JSON object with at least **`name`** and **`version`**; optional **`description`**, **`author`**, and any extra keys stored verbatim.
+- **`archive`** (file field): gzip tarball (`.tar.gz`) of the skill payload.
+
+On success the server responds with **`201 Created`** and an empty body.
 
 ### 5. `DELETE /skills/:name/versions/:version` (Yank)
 Soft-delete (yank) a specific version, making it unavailable for new installations.
