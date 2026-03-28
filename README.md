@@ -61,6 +61,8 @@ Readiness: `GET /readyz` → `200 ok` when the data directory and required subfo
 
 Build id: `GET /version` (plain text) or `registry -version` — same string as `registry.Version` (default `0.0.0-dev` until set via `-ldflags`).
 
+Release tags: Git tags matching `v*` trigger the **Go** CI workflow on push; for production images, pass `-ldflags "-X github.com/getskillpack/registry.Version=<tag>"` so the binary matches the tag.
+
 **Observability:** each response is logged to stderr via `slog` (`method`, `path`, `status`, `duration`, `remote`, `bytes`). With `REGISTRY_ENABLE_METRICS`, also scrape `GET /metrics` (exempt from read-token auth; protect at the edge).
 
 **Rate limit:** when `REGISTRY_RATE_LIMIT_RPS` is set, `/healthz`, `/readyz`, and `/metrics` are skipped. Use `REGISTRY_TRUST_FORWARDED_FOR` only behind a trusted ingress.
