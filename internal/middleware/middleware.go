@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"log/slog"
-	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,14 +11,6 @@ import (
 
 	"golang.org/x/time/rate"
 )
-
-// Chain applies middlewares outer-to-inner: first middleware is the outermost.
-func Chain(h http.Handler, mws ...func(http.Handler) http.Handler) http.Handler {
-	for i := len(mws) - 1; i >= 0; i-- {
-		h = mws[i](h)
-	}
-	return h
-}
 
 type responseRecorder struct {
 	http.ResponseWriter
@@ -42,25 +33,18 @@ func RequestLogger(next http.Handler) http.Handler {
 			"path", r.URL.Path,
 			"status", rr.status,
 			"duration_ms", time.Since(start).Milliseconds(),
-			"remote_ip", clientIP(r),
+			"remote_ip", ClientIP(r, trustForwardedFromEnv()),
 		)
 	})
 }
 
-func clientIP(r *http.Request) string {
-	if trust := strings.TrimSpace(os.Getenv("REGISTRY_TRUST_FORWARDED_FOR")); trust == "1" || strings.EqualFold(trust, "true") {
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			parts := strings.Split(xff, ",")
-			if len(parts) > 0 {
-				return strings.TrimSpace(parts[0])
-			}
-		}
+func trustForwardedFromEnv() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("REGISTRY_TRUST_FORWARDED_FOR"))) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
 	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-	return host
 }
 
 // IPRateLimiter is a per-client-IP token bucket (by RemoteAddr or X-Forwarded-For when trusted).
@@ -117,7 +101,7 @@ func (l *IPRateLimiter) RateLimit(skipPrefixes ...string) func(http.Handler) htt
 				next.ServeHTTP(w, r)
 				return
 			}
-			if !l.allow(clientIP(r)) {
+			if !l.allow(ClientIP(r, trustForwardedFromEnv())) {
 				w.Header().Set("Retry-After", "1")
 				http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
 				return

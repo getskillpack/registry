@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  readme-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Root README exists
+        run: test -s README.md
+      - name: Root README English-only (getskillpack org)
+        run: |
+          python3 << 'PY'
+          import pathlib
+          import re
+          import sys
+
+          text = pathlib.Path("README.md").read_text(encoding="utf-8")
+          if re.search(r"[А-Яа-яЁё]", text):
+              print(
+                  "Root README must be English-only (Cyrillic not allowed). "
+                  "See https://github.com/getskillpack/registry/blob/main/docs/ORG_README_POLICY.md"
+              )
+              sys.exit(1)
+          PY

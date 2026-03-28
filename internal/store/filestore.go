@@ -312,15 +312,24 @@ func (s *fileStore) Publish(ctx context.Context, name, version, description, aut
 }
 
 func (s *fileStore) Ping(ctx context.Context) error {
-	_ = ctx
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	fi, err := os.Stat(s.root)
+	if err != nil {
+		return fmt.Errorf("stat data root: %w", err)
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("registry data root is not a directory")
+	}
 	for _, sub := range []string{"skills", "archives"} {
 		p := filepath.Join(s.root, sub)
-		fi, err := os.Stat(p)
+		st, err := os.Stat(p)
 		if err != nil {
 			return fmt.Errorf("stat %s: %w", sub, err)
 		}
-		if !fi.IsDir() {
-			return fmt.Errorf("%s is not a directory", sub)
+		if !st.IsDir() {
+			return fmt.Errorf("registry %s is not a directory", sub)
 		}
 	}
 	return nil

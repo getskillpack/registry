@@ -1,30 +1,19 @@
 package main
 
 import (
-	"context"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/getskillpack/registry"
 	"github.com/getskillpack/registry/internal/api"
 	"github.com/getskillpack/registry/internal/metrics"
 	"github.com/getskillpack/registry/internal/middleware"
 	"github.com/getskillpack/registry/internal/store"
 )
-
-func setupLogger() {
-	level := slog.LevelInfo
-	var h slog.Handler
-	switch strings.ToLower(strings.TrimSpace(os.Getenv("REGISTRY_LOG_FORMAT"))) {
-	case "json":
-		h = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: level})
-	default:
-		h = slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
-	}
-	slog.SetDefault(slog.New(h))
-}
 
 func metricsEnabled() bool {
 	v := strings.ToLower(strings.TrimSpace(os.Getenv("REGISTRY_ENABLE_METRICS")))
@@ -32,8 +21,6 @@ func metricsEnabled() bool {
 }
 
 func main() {
-	setupLogger()
-
 	dataDir := os.Getenv("REGISTRY_DATA_DIR")
 	if dataDir == "" {
 		dataDir = "data"
@@ -49,9 +36,11 @@ func main() {
 	writeTok := os.Getenv("REGISTRY_WRITE_TOKEN")
 	readTok := os.Getenv("REGISTRY_READ_TOKEN")
 	srv := &api.Server{
-		Store:       st,
-		WriteToken:  writeTok,
-		DefaultAddr: addr,
+		Store:               st,
+		WriteToken:          writeTok,
+		DefaultAddr:         addr,
+		RegistryAPIMarkdown: registry.RegistryAPIMarkdown,
+		OGCardSVG:           registry.OGCardSVG,
 	}
 	if srv.DefaultAddr != "" && srv.DefaultAddr[0] == ':' {
 		srv.DefaultAddr = "localhost" + srv.DefaultAddr
@@ -62,23 +51,37 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
 	})
-	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, _ *http.Request) {
-		if err := st.Ping(context.Background()); err != nil {
-			http.Error(w, "store unavailable", http.StatusServiceUnavailable)
+	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.Ping(r.Context()); err != nil {
+			http.Error(w, "not ready", http.StatusServiceUnavailable)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
 	})
 
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("REGISTRY_LOG_FORMAT")), "json") {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+	slog.SetDefault(logger)
+
+	rps, _ := strconv.ParseFloat(strings.TrimSpace(os.Getenv("REGISTRY_RATE_LIMIT_RPS")), 64)
+	burst := 0
+	if v := strings.TrimSpace(os.Getenv("REGISTRY_RATE_LIMIT_BURST")); v != "" {
+		burst, _ = strconv.Atoi(v)
+	}
+	trustFwd := envBool(os.Getenv("REGISTRY_TRUST_FORWARDED_FOR"))
+
 	handler := http.Handler(mux)
 	handler = middleware.RequireReadToken(readTok)(handler)
-	if rps, burst, ok := middleware.ParseRateLimitEnv(); ok {
-		lim := middleware.NewIPRateLimiter(rps, burst, 50000)
-		handler = lim.RateLimit()(handler)
-		slog.Info("rate limit enabled", "rps", rps, "burst", burst)
-	}
-	handler = middleware.RequestLogger(handler)
+	handler = middleware.RateLimit(middleware.RateLimitConfig{
+		RPS:              rps,
+		Burst:            burst,
+		TrustForwarded:   trustFwd,
+		SkipPathPrefixes: []string{"/healthz", "/readyz", "/metrics"},
+	})(handler)
+	handler = middleware.RequestLog(logger)(handler)
 	if metricsEnabled() {
 		prom, err := metrics.NewHTTPMetrics()
 		if err != nil {
@@ -86,10 +89,25 @@ func main() {
 		}
 		mux.Handle("GET /metrics", prom.Handler())
 		handler = prom.Middleware(handler)
-		slog.Info("prometheus metrics enabled", "path", "/metrics")
+		logger.Info("prometheus metrics enabled", slog.String("path", "/metrics"))
 	}
-	handler = middleware.Recover(handler)
+	handler = middleware.Recover(logger)(handler)
 
-	slog.Info("registry listening", "addr", addr, "data_dir", dataDir)
+	logger.Info("registry listening",
+		slog.String("addr", addr),
+		slog.String("data", dataDir),
+		slog.Float64("rate_limit_rps", rps),
+		slog.Int("rate_limit_burst", burst),
+		slog.Bool("trust_forwarded_for", trustFwd),
+	)
 	log.Fatal(http.ListenAndServe(addr, handler))
+}
+
+func envBool(s string) bool {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }

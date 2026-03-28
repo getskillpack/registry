@@ -71,4 +71,6 @@ type Store interface {
 	OpenArchive(ctx context.Context, sha256Hex string) (io.ReadCloser, int64, error)
 	Publish(ctx context.Context, name, version string, description, author string, manifest json.RawMessage, archive []byte) error
 	Yank(ctx context.Context, name, version string) error
+	// Ping checks that persistence is reachable (for readiness probes).
+	Ping(ctx context.Context) error
 }

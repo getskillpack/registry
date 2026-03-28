@@ -73,12 +73,10 @@ func TestParseRateLimitEnv(t *testing.T) {
 }
 
 func TestClientIPForwardedFor(t *testing.T) {
-	t.Setenv("REGISTRY_TRUST_FORWARDED_FOR", "1")
-
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.RemoteAddr = "10.0.0.1:1234"
 	req.Header.Set("X-Forwarded-For", "203.0.113.7, 10.0.0.2")
-	if got := clientIP(req); got != "203.0.113.7" {
-		t.Fatalf("clientIP: %q", got)
+	if got := ClientIP(req, true); got != "203.0.113.7" {
+		t.Fatalf("ClientIP: %q", got)
 	}
 }
