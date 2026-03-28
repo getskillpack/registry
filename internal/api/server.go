@@ -99,7 +99,7 @@ var rootPageTmpl = template.Must(template.New("root").Parse(`<!DOCTYPE html>
 <ul>
 {{if .DocsURL}}<li><a href="{{.DocsURL}}">Документация API (Markdown)</a></li>{{end}}
 <li><a href="https://github.com/getskillpack/registry">Исходники на GitHub</a></li>
-<li><a href="/healthz"><code>/healthz</code></a> · <a href="/api/v1/skills"><code>GET /api/v1/skills</code></a></li>
+<li><a href="/healthz"><code>/healthz</code></a> · <a href="/readyz"><code>/readyz</code></a> · <a href="/api/v1/skills"><code>GET /api/v1/skills</code></a></li>
 </ul>
 </body>
 </html>`))

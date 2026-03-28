@@ -30,8 +30,14 @@ Environment variables:
 | `REGISTRY_DATA_DIR` | Data directory (default `data`) |
 | `REGISTRY_WRITE_TOKEN` | Bearer token for `POST /api/v1/skills` and `DELETE ...` (if empty — read-only) |
 | `REGISTRY_PUBLIC_URL` | Public base URL for archive links (if unset — derived from the request) |
+| `REGISTRY_LOG_FORMAT` | Set to `json` for JSON request logs on stderr (default: text `slog`) |
+| `REGISTRY_RATE_LIMIT_RPS` | Per-IP rate limit (token bucket). If unset or `0`, limiting is **disabled** |
+| `REGISTRY_RATE_LIMIT_BURST` | Burst size for the limiter (default `1` when RPS is enabled) |
+| `REGISTRY_TRUST_FORWARDED_FOR` | If `true`/`1`/`yes`/`on`, use `X-Forwarded-For` for client IP (only behind a **trusted** proxy) |
 
-Health check: `GET /healthz` → `200 ok`.
+Health check: `GET /healthz` → `200 ok` (liveness; does not verify storage).
+
+Readiness: `GET /readyz` → `200 ok` when the data directory and required subfolders are reachable; `503` if storage is not usable.
 
 ### Tests
 

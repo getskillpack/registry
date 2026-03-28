@@ -67,3 +67,16 @@ Requires multipart/form-data with `manifest` (JSON) and `archive` (file).
 
 ### 5. `DELETE /skills/:name/versions/:version` (Yank)
 Soft-delete (yank) a specific version, making it unavailable for new installations.
+
+---
+
+## Operational endpoints (outside `/api/v1`)
+
+These paths are served by the reference server for probes and do not use the `Base URL` above:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/healthz` | Liveness — process is up (does not verify storage). |
+| `GET` | `/readyz` | Readiness — data directory layout is usable (`skills/`, `archives/`). Returns `503` if not. |
+
+Optional rate limiting and request logging are configured via environment variables documented in the repository [README](../README.md).

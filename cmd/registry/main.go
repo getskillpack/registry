@@ -2,11 +2,15 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/getskillpack/registry"
 	"github.com/getskillpack/registry/internal/api"
+	"github.com/getskillpack/registry/internal/middleware"
 	"github.com/getskillpack/registry/internal/store"
 )
 
@@ -40,6 +44,54 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
 	})
-	log.Printf("registry listening on %s (data=%s)", addr, dataDir)
-	log.Fatal(http.ListenAndServe(addr, mux))
+	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.Ping(r.Context()); err != nil {
+			http.Error(w, "not ready", http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok\n"))
+	})
+
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("REGISTRY_LOG_FORMAT")), "json") {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+	slog.SetDefault(logger)
+
+	rps, _ := strconv.ParseFloat(strings.TrimSpace(os.Getenv("REGISTRY_RATE_LIMIT_RPS")), 64)
+	burst := 0
+	if v := strings.TrimSpace(os.Getenv("REGISTRY_RATE_LIMIT_BURST")); v != "" {
+		burst, _ = strconv.Atoi(v)
+	}
+	trustFwd := envBool(os.Getenv("REGISTRY_TRUST_FORWARDED_FOR"))
+
+	handler := middleware.Chain(mux,
+		middleware.Recover(logger),
+		middleware.RequestLog(logger),
+		middleware.RateLimit(middleware.RateLimitConfig{
+			RPS:              rps,
+			Burst:            burst,
+			TrustForwarded:   trustFwd,
+			SkipPathPrefixes: []string{"/healthz", "/readyz"},
+		}),
+	)
+
+	logger.Info("registry listening",
+		slog.String("addr", addr),
+		slog.String("data", dataDir),
+		slog.Float64("rate_limit_rps", rps),
+		slog.Int("rate_limit_burst", burst),
+		slog.Bool("trust_forwarded_for", trustFwd),
+	)
+	log.Fatal(http.ListenAndServe(addr, handler))
+}
+
+func envBool(s string) bool {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }
