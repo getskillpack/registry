@@ -51,6 +51,13 @@ jobs:
         run: |
           go vet ./...
           go test ./... -count=1
+      - name: Version flag and -ldflags
+        run: |
+          set -euo pipefail
+          go build -o /tmp/registry-version ./cmd/registry
+          /tmp/registry-version -version | grep -q .
+          go build -ldflags "-X github.com/getskillpack/registry.Version=ci-verify" -o /tmp/registry-stamped ./cmd/registry
+          test "$(/tmp/registry-stamped -version)" = "ci-verify"
       - name: Root README English-only (getskillpack org)
         run: |
           python3 << 'PY'
