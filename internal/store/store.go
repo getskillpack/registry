@@ -9,18 +9,18 @@ import (
 )
 
 var (
-	ErrNotFound  = errors.New("not found")
-	ErrConflict  = errors.New("version already exists")
-	ErrYanked = errors.New("version yanked")
+	ErrNotFound = errors.New("not found")
+	ErrConflict = errors.New("version already exists")
+	ErrYanked   = errors.New("version yanked")
 )
 
 // SkillSummary matches GET /skills list items.
 type SkillSummary struct {
-	Name           string    `json:"name"`
-	Description    string    `json:"description"`
-	Author         string    `json:"author"`
-	LatestVersion  string    `json:"latest_version"`
-	CreatedAt      time.Time `json:"created_at"`
+	Name          string    `json:"name"`
+	Description   string    `json:"description"`
+	Author        string    `json:"author"`
+	LatestVersion string    `json:"latest_version"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 // SkillDetail is returned by GET /skills/:name.

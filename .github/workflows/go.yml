@@ -18,6 +18,8 @@ jobs:
         with:
           repository: getskillpack/cli
           path: cli
+          # Private repo: default GITHUB_TOKEN cannot read other repos in the org.
+          token: ${{ secrets.GETSKILLPACK_ORG_PAT }}
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"

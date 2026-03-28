@@ -105,9 +105,9 @@ var rootPageTmpl = template.Must(template.New("root").Parse(`<!DOCTYPE html>
 </html>`))
 
 type rootPageData struct {
-	Base        string
-	OGImageURL  string
-	DocsURL     string
+	Base       string
+	OGImageURL string
+	DocsURL    string
 }
 
 func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {

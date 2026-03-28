@@ -27,12 +27,12 @@ type fileStore struct {
 }
 
 type skillDisk struct {
-	Name        string                    `json:"name"`
-	Description string                    `json:"description"`
-	Author      string                    `json:"author"`
-	CreatedAt   time.Time                 `json:"created_at"`
-	Versions    map[string]*versionDisk   `json:"versions"`
-	path        string                    `json:"-"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
+	Author      string                  `json:"author"`
+	CreatedAt   time.Time               `json:"created_at"`
+	Versions    map[string]*versionDisk `json:"versions"`
+	path        string                  `json:"-"`
 }
 
 type versionDisk struct {
@@ -133,7 +133,7 @@ func (s *fileStore) List(ctx context.Context, p ListParams) (ListResult, error) 
 		}
 		out = append(out, SkillSummary{
 			Name:          sk.Name,
-			Description: sk.Description,
+			Description:   sk.Description,
 			Author:        sk.Author,
 			LatestVersion: lv,
 			CreatedAt:     sk.CreatedAt,
