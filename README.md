@@ -5,6 +5,7 @@ Central registry and skill marketplace for the [getskillpack](https://github.com
 ## Contents
 
 - **[docs/ORG_README_POLICY.md](./docs/ORG_README_POLICY.md)** — English-only root `README.md` policy for public repos in the getskillpack org.
+- **[SECURITY.md](./SECURITY.md)** — vulnerability reporting and supported versions.
 - **[docs/registry-api.md](./docs/registry-api.md)** — canonical HTTP API contract (`/api/v1`); on a deployed registry the same document is served at `GET /docs/registry-api`.
 - **[API.md](./API.md)** — short pointer plus health, metrics, and auth notes (backward compatibility for older links).
 - **[docs/PUBLISH.md](./docs/PUBLISH.md)** — how to build an archive and publish a package (curl, secrets, CI).
