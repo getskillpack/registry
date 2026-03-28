@@ -43,6 +43,18 @@
 
 Ожидаемый ответ: HTTP **201 Created**.
 
+## Чтение API и скачивания (опционально)
+
+Если на сервере задан **`REGISTRY_READ_TOKEN`**, все **`GET`/`HEAD`** к `/api/v1/*` и **`/downloads/*`** требуют заголовок **`Authorization: Bearer <read-token>`** (публикация по-прежнему только с write-токеном). Пример:
+
+```bash
+export REGISTRY_READ_TOKEN='секрет-из-окружения'
+curl -sS -H "Authorization: Bearer $REGISTRY_READ_TOKEN" \
+  "http://127.0.0.1:8080/api/v1/skills"
+```
+
+Клиенты **skillget** при таком реестре должны передавать тот же Bearer на read-path (см. документацию CLI / менеджера пакетов).
+
 ## Секреты и CI
 
 - **Токен записи реестра** (`REGISTRY_WRITE_TOKEN` на стороне сервера; для клиента — Bearer в `Authorization`) **не** коммитьте и не вставляйте в тикеты.
