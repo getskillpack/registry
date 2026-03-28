@@ -10,6 +10,22 @@ permissions:
   contents: read
 
 jobs:
+  e2e-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: getskillpack/cli
+          path: cli
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: skillget ↔ registry smoke
+        env:
+          SKILLGET_SRC: ${{ github.workspace }}/cli
+        run: bash scripts/e2e-smoke.sh
+
   test:
     runs-on: ubuntu-latest
     steps:

@@ -33,6 +33,10 @@ REGISTRY_WRITE_TOKEN='секрет' ./registry
 go test ./... -count=1
 ```
 
+### E2E: skillget ↔ registry
+
+См. [docs/E2E_SMOKE.md](./docs/E2E_SMOKE.md). Кратко: `make e2e-smoke` (нужен Go, `curl`, `python3` и исходники CLI в `SKILLGET_SRC` или бинарь `skillget` в `PATH`). В CI — job `e2e-smoke` в `.github/workflows/go.yml`.
+
 ## Связанные репозитории
 
 | Репозиторий | Роль |
