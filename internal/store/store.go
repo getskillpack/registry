@@ -64,6 +64,7 @@ type ListResult struct {
 
 // Store is the registry persistence layer.
 type Store interface {
+	Ping(ctx context.Context) error
 	List(ctx context.Context, p ListParams) (ListResult, error)
 	GetSkill(ctx context.Context, name, publicBaseURL string) (*SkillDetail, error)
 	GetVersion(ctx context.Context, name, version, publicBaseURL string) (*VersionRecord, error)

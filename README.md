@@ -24,16 +24,19 @@ REGISTRY_WRITE_TOKEN='секрет' ./registry
 | `REGISTRY_LISTEN_ADDR` | Адрес прослушивания (по умолчанию `:8080`) |
 | `REGISTRY_DATA_DIR` | Каталог данных (по умолчанию `data`) |
 | `REGISTRY_WRITE_TOKEN` | Bearer-токен для `POST /api/v1/skills` и `DELETE ...` (если пусто — только чтение) |
+| `REGISTRY_READ_TOKEN` | Если задан — для `GET`/`HEAD` на `/api/v1/*` и `/downloads/*` нужен `Authorization: Bearer` с этим значением; `POST`/`DELETE` не затрагивается |
 | `REGISTRY_PUBLIC_URL` | Публичный базовый URL для ссылок на архивы (если не задан — берётся из запроса) |
+| `REGISTRY_LOG_FORMAT` | `json` — логи в JSON на stderr; иначе текстовый формат `slog` |
+| `REGISTRY_ENABLE_METRICS` | `1` / `true` — включить `GET /metrics` (Prometheus) и счётчики `registry_http_*` |
 | `REGISTRY_RATE_LIMIT_RPS` | Если задано число > 0 — лимит запросов на IP (см. выше) |
 | `REGISTRY_RATE_LIMIT_BURST` | Размер burst для лимитера (опционально) |
 | `REGISTRY_TRUST_FORWARDED_FOR` | `1` / `true` — брать IP из первого `X-Forwarded-For` (только за доверенным прокси) |
 
-Проверка: `GET /healthz` → `200 ok`. Готовность к трафику (каталог данных): `GET /readyz` → `200 ok` или `503`, если `REGISTRY_DATA_DIR` недоступен.
+Проверка: `GET /healthz` → `200 ok`. Готовность: `GET /readyz` — проверка `skills/` и `archives/` под `REGISTRY_DATA_DIR` (`200` или `503`).
 
-**Наблюдаемость:** каждый HTTP-запрос (кроме случаев, когда лимитер отвечает 429 до хендлера) пишется в stderr через `slog` с полями `method`, `path`, `status`, `duration_ms`, `remote_ip`.
+**Наблюдаемость:** ответы (включая `401`/`429`) пишутся в stderr через `slog` (`method`, `path`, `status`, `duration_ms`, `remote_ip`). При `REGISTRY_ENABLE_METRICS` — ещё `GET /metrics` (без `REGISTRY_READ_TOKEN`) и счётчики Prometheus на тех же ответах.
 
-**Rate limit (опционально):** задайте `REGISTRY_RATE_LIMIT_RPS` (например `50`) — включается per-IP token bucket для всех путей, кроме `/healthz` и `/readyz`. Дополнительно: `REGISTRY_RATE_LIMIT_BURST` (если не задан — `max(10, 2×RPS)`). За прокси с корректным `X-Forwarded-For` установите `REGISTRY_TRUST_FORWARDED_FOR=1` (доверяйте только своему ingress).
+**Rate limit (опционально):** задайте `REGISTRY_RATE_LIMIT_RPS` (например `50`) — per-IP token bucket для всех путей, кроме `/healthz`, `/readyz` и `/metrics`. Дополнительно: `REGISTRY_RATE_LIMIT_BURST` (если не задан — `max(10, 2×RPS)`). За прокси с корректным `X-Forwarded-For` установите `REGISTRY_TRUST_FORWARDED_FOR=1` (доверяйте только своему ingress).
 
 ### Тесты
 

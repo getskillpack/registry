@@ -113,7 +113,7 @@ func (l *IPRateLimiter) RateLimit(skipPrefixes ...string) func(http.Handler) htt
 					return
 				}
 			}
-			if path == "/healthz" || path == "/readyz" {
+			if path == "/healthz" || path == "/readyz" || path == "/metrics" {
 				next.ServeHTTP(w, r)
 				return
 			}

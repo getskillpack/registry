@@ -5,11 +5,17 @@ Base URL: `https://registry.skpkg.org/api/v1`
 ## Health and readiness
 
 - `GET /healthz` — процесс жив (`200`, тело `ok`).
-- `GET /readyz` — каталог данных (`REGISTRY_DATA_DIR`) доступен как директория (`200`) или `503`, если монтирование/диск недоступны.
+- `GET /readyz` — хранилище готово: подкаталоги `skills/` и `archives/` в `REGISTRY_DATA_DIR` существуют и являются директориями (`200` или `503`).
+
+## Metrics (optional)
+
+When the operator sets **`REGISTRY_ENABLE_METRICS`** (`1` / `true` / `yes`), the server exposes **`GET /metrics`** in Prometheus text format. Typical series: `registry_http_requests_total` and `registry_http_request_duration_seconds` with labels `method`, `route`, `code`. The `/metrics` path is not subject to optional read-token auth (protect it at the network or ingress layer if needed).
 
 ## Authentication
 
 All endpoints requiring write access (publish, yank) require a Bearer token in the `Authorization` header. The value must match the registry operator’s `REGISTRY_WRITE_TOKEN`.
+
+If **`REGISTRY_READ_TOKEN`** is set, **read** access to **`GET`/`HEAD`** on `/api/v1/*` and `/downloads/*` requires `Authorization: Bearer <read token>`. `POST` and `DELETE` continue to use only the write token for mutating routes.
 
 **CLI clients** (`skillget publish`): set **`SKILLGET_REGISTRY_TOKEN`** (canonical) or **`SKILLGET_TOKEN`** (short alias) in the environment so the client sends `Authorization: Bearer <token>`.
 

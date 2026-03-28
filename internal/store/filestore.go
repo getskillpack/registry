@@ -311,6 +311,21 @@ func (s *fileStore) Publish(ctx context.Context, name, version, description, aut
 	return s.persistSkillLocked(sk)
 }
 
+func (s *fileStore) Ping(ctx context.Context) error {
+	_ = ctx
+	for _, sub := range []string{"skills", "archives"} {
+		p := filepath.Join(s.root, sub)
+		fi, err := os.Stat(p)
+		if err != nil {
+			return fmt.Errorf("stat %s: %w", sub, err)
+		}
+		if !fi.IsDir() {
+			return fmt.Errorf("%s is not a directory", sub)
+		}
+	}
+	return nil
+}
+
 func (s *fileStore) Yank(ctx context.Context, name, version string) error {
 	_ = ctx
 	s.mu.Lock()
