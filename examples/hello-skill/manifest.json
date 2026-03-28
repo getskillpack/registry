@@ -1,0 +1,7 @@
+{
+  "name": "hello-skill",
+  "version": "0.1.0",
+  "description": "Минимальный пример skill-пакета для реестра getskillpack.",
+  "author": "getskillpack",
+  "dependencies": {}
+}

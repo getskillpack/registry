@@ -1,0 +1,26 @@
+name: getskillpack org (manual)
+
+# Ручной запуск: не ломает CI на форках, если секрет org отсутствует.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-org-access:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify GETSKILLPACK_ORG_PAT
+        env:
+          GETSKILLPACK_ORG_PAT: ${{ secrets.GETSKILLPACK_ORG_PAT }}
+        run: |
+          if [ -z "$GETSKILLPACK_ORG_PAT" ]; then
+            echo "Добавьте секрет GETSKILLPACK_ORG_PAT: Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          curl -sS -f -H "Authorization: Bearer ${GETSKILLPACK_ORG_PAT}" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/user >/dev/null
+          curl -sS -f -H "Authorization: Bearer ${GETSKILLPACK_ORG_PAT}" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/orgs/getskillpack >/dev/null
+          echo "GitHub API: user + org getskillpack OK"
