@@ -9,6 +9,7 @@ Central registry and skill marketplace for the [getskillpack](https://github.com
 - **[API.md](./API.md)** — short pointer to the file above (backward compatibility for older links).
 - **[docs/PUBLISH.md](./docs/PUBLISH.md)** — how to build an archive and publish a package (curl, secrets, CI).
 - **[docs/PUBLIC_ECOSYSTEM.md](./docs/PUBLIC_ECOSYSTEM.md)** — which getskillpack repos are public, and what replaced the removed `skillget-manager` prototype.
+- **[docs/SKPKG_VS_PACKAGE_MANAGERS_RU.md](./docs/SKPKG_VS_PACKAGE_MANAGERS_RU.md)** — factual comparison of skpkg vs npm / Packagist / PyPI (Russian; for Growth/CMO messaging).
 - **Example skill package** — [`examples/hello-skill/`](./examples/hello-skill/) and a prebuilt archive [`examples/dist/hello-skill-0.1.0.tar.gz`](./examples/dist/hello-skill-0.1.0.tar.gz) (rebuild: `scripts/pack-example.sh`).
 - **Go server** (`cmd/registry`) — file-backed store under `./data`, routes from `API.md` plus archive delivery at `GET /downloads/{sha256}.tar.gz`.
 
