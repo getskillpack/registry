@@ -151,3 +151,62 @@ func TestWriteDisabledWithoutToken(t *testing.T) {
 		t.Fatalf("expected 503, got %d", resp.StatusCode)
 	}
 }
+
+func TestPublicLandingAndDocs(t *testing.T) {
+	dir := t.TempDir()
+	st, err := store.NewFileStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := &Server{
+		Store:               st,
+		DefaultAddr:         "127.0.0.1:8080",
+		RegistryAPIMarkdown: []byte("# API\n"),
+		OGCardSVG:           []byte(`<svg xmlns="http://www.w3.org/2000/svg"/>`),
+	}
+	mux := http.NewServeMux()
+	srv.Register(mux)
+	ts := httptest.NewServer(mux)
+	t.Cleanup(ts.Close)
+
+	res, err := http.Get(ts.URL + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("root: %d", res.StatusCode)
+	}
+	if ct := res.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
+		t.Fatalf("root content-type: %q", ct)
+	}
+	b, _ := io.ReadAll(res.Body)
+	if !strings.Contains(string(b), "og:title") {
+		t.Fatalf("root html missing og:title")
+	}
+
+	res, err = http.Get(ts.URL + "/docs/registry-api")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("docs: %d", res.StatusCode)
+	}
+	b, _ = io.ReadAll(res.Body)
+	if string(b) != "# API\n" {
+		t.Fatalf("docs body: %q", b)
+	}
+
+	res, err = http.Get(ts.URL + "/og.svg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("og: %d", res.StatusCode)
+	}
+	if !strings.HasPrefix(res.Header.Get("Content-Type"), "image/svg+xml") {
+		t.Fatalf("og content-type: %q", res.Header.Get("Content-Type"))
+	}
+}

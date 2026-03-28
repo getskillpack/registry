@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/getskillpack/registry"
 	"github.com/getskillpack/registry/internal/api"
 	"github.com/getskillpack/registry/internal/store"
 )
@@ -24,9 +25,11 @@ func main() {
 	}
 	writeTok := os.Getenv("REGISTRY_WRITE_TOKEN")
 	srv := &api.Server{
-		Store:       st,
-		WriteToken:  writeTok,
-		DefaultAddr: addr,
+		Store:               st,
+		WriteToken:          writeTok,
+		DefaultAddr:         addr,
+		RegistryAPIMarkdown: registry.RegistryAPIMarkdown,
+		OGCardSVG:           registry.OGCardSVG,
 	}
 	if srv.DefaultAddr != "" && srv.DefaultAddr[0] == ':' {
 		srv.DefaultAddr = "localhost" + srv.DefaultAddr

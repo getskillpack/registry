@@ -4,7 +4,8 @@
 
 ## Содержимое
 
-- **[API.md](./API.md)** — контракт HTTP API (`/api/v1`).
+- **[docs/registry-api.md](./docs/registry-api.md)** — канонический контракт HTTP API (`/api/v1`); на развёрнутом реестре тот же текст: `GET /docs/registry-api`.
+- **[API.md](./API.md)** — короткий указатель на файл выше (совместимость со старыми ссылками).
 - **[docs/PUBLISH.md](./docs/PUBLISH.md)** — как собрать архив и опубликовать пакет (curl, секреты, CI).
 - **Пример skill-пакета** — [`examples/hello-skill/`](./examples/hello-skill/) и готовый архив [`examples/dist/hello-skill-0.1.0.tar.gz`](./examples/dist/hello-skill-0.1.0.tar.gz) (пересборка: `scripts/pack-example.sh`).
 - **Сервер на Go** (`cmd/registry`) — файловое хранилище под `./data`, маршруты из `API.md` + выдача архивов по `GET /downloads/{sha256}.tar.gz`.

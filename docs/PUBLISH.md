@@ -1,6 +1,6 @@
 # Как опубликовать skill в реестре
 
-Публикация — это `POST /api/v1/skills` с multipart: поле **`manifest`** (JSON) и файл **`archive`** (`.tar.gz`). См. [API.md](../API.md).
+Публикация — это `POST /api/v1/skills` с multipart: поле **`manifest`** (JSON) и файл **`archive`** (`.tar.gz`). См. [registry-api.md](./registry-api.md).
 
 ## Манифест
 

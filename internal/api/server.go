@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -17,6 +18,10 @@ type Server struct {
 	Store       store.Store
 	WriteToken  string // if empty, POST/DELETE return 503
 	DefaultAddr string // host:port for public URL fallback (e.g. localhost:8080)
+	// RegistryAPIMarkdown is optional; when set, served at GET /docs/registry-api (text/markdown).
+	RegistryAPIMarkdown []byte
+	// OGCardSVG is optional; when set, served at GET /og.svg for Open Graph previews.
+	OGCardSVG []byte
 }
 
 func (s *Server) publicBase(r *http.Request) string {
@@ -58,12 +63,78 @@ func (s *Server) requireWrite(w http.ResponseWriter, r *http.Request) bool {
 
 // Register mounts routes on mux (Go 1.22+ patterns).
 func (s *Server) Register(mux *http.ServeMux) {
+	mux.HandleFunc("GET /", s.handleRoot)
+	if len(s.RegistryAPIMarkdown) > 0 {
+		mux.HandleFunc("GET /docs/registry-api", s.handleRegistryAPIDoc)
+	}
+	if len(s.OGCardSVG) > 0 {
+		mux.HandleFunc("GET /og.svg", s.handleOGCard)
+	}
 	mux.HandleFunc("GET /api/v1/skills", s.handleListSkills)
 	mux.HandleFunc("GET /api/v1/skills/{name}", s.handleGetSkill)
 	mux.HandleFunc("GET /api/v1/skills/{name}/versions/{version}", s.handleGetVersion)
 	mux.HandleFunc("POST /api/v1/skills", s.handlePublish)
 	mux.HandleFunc("DELETE /api/v1/skills/{name}/versions/{version}", s.handleYank)
 	mux.HandleFunc("GET /downloads/{file}", s.handleDownload)
+}
+
+var rootPageTmpl = template.Must(template.New("root").Parse(`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>getskillpack registry</title>
+<meta name="description" content="HTTP API и хранилище skill-пакетов для экосистемы getskillpack.">
+<meta property="og:title" content="getskillpack registry">
+<meta property="og:description" content="HTTP API и хранилище skill-пакетов для экосистемы getskillpack.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{.Base}}">
+{{if .OGImageURL}}<meta property="og:image" content="{{.OGImageURL}}">
+<meta name="twitter:card" content="summary_large_image">{{end}}
+{{if .DocsURL}}<link rel="alternate" type="text/markdown" href="{{.DocsURL}}">{{end}}
+</head>
+<body style="font-family:system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem">
+<h1>getskillpack registry</h1>
+<p>Центральный реестр skill-пакетов для <a href="https://github.com/getskillpack">getskillpack</a>.</p>
+<ul>
+{{if .DocsURL}}<li><a href="{{.DocsURL}}">Документация API (Markdown)</a></li>{{end}}
+<li><a href="https://github.com/getskillpack/registry">Исходники на GitHub</a></li>
+<li><a href="/healthz"><code>/healthz</code></a> · <a href="/api/v1/skills"><code>GET /api/v1/skills</code></a></li>
+</ul>
+</body>
+</html>`))
+
+type rootPageData struct {
+	Base        string
+	OGImageURL  string
+	DocsURL     string
+}
+
+func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	base := s.publicBase(r)
+	data := rootPageData{Base: base + "/"}
+	if len(s.OGCardSVG) > 0 {
+		data.OGImageURL = base + "/og.svg"
+	}
+	if len(s.RegistryAPIMarkdown) > 0 {
+		data.DocsURL = base + "/docs/registry-api"
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = rootPageTmpl.Execute(w, data)
+}
+
+func (s *Server) handleRegistryAPIDoc(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
+	_, _ = w.Write(s.RegistryAPIMarkdown)
+}
+
+func (s *Server) handleOGCard(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/svg+xml; charset=utf-8")
+	_, _ = w.Write(s.OGCardSVG)
 }
 
 func (s *Server) handleListSkills(w http.ResponseWriter, r *http.Request) {
