@@ -37,6 +37,10 @@ Environment variables:
 | `REGISTRY_RATE_LIMIT_RPS` | Per-IP rate limit (token bucket). If unset or `0`, limiting is **disabled** |
 | `REGISTRY_RATE_LIMIT_BURST` | Burst size for the limiter (default `1` when RPS is enabled) |
 | `REGISTRY_TRUST_FORWARDED_FOR` | If `true`/`1`/`yes`/`on`, use `X-Forwarded-For` for client IP (only behind a **trusted** proxy) |
+| `REGISTRY_HTTP_READ_HEADER_TIMEOUT_SEC` | HTTP server read-header timeout in seconds (default `10`; set `0` to disable) |
+| `REGISTRY_HTTP_READ_TIMEOUT_SEC` | If >0, total request read timeout (seconds) |
+| `REGISTRY_HTTP_WRITE_TIMEOUT_SEC` | If >0, response write timeout (seconds); use a large value if serving big downloads |
+| `REGISTRY_HTTP_IDLE_TIMEOUT_SEC` | If >0, idle connection timeout (seconds) |
 
 Health check: `GET /healthz` → `200 ok` (liveness; does not verify storage).
 

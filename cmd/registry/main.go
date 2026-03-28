@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/getskillpack/registry"
 	"github.com/getskillpack/registry/internal/api"
@@ -93,14 +94,58 @@ func main() {
 	}
 	handler = middleware.Recover(logger)(handler)
 
+	httpSrv := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: readHeaderTimeout(),
+	}
+	if d := optionalTimeoutFromEnv("REGISTRY_HTTP_READ_TIMEOUT_SEC"); d > 0 {
+		httpSrv.ReadTimeout = d
+	}
+	if d := optionalTimeoutFromEnv("REGISTRY_HTTP_WRITE_TIMEOUT_SEC"); d > 0 {
+		httpSrv.WriteTimeout = d
+	}
+	if d := optionalTimeoutFromEnv("REGISTRY_HTTP_IDLE_TIMEOUT_SEC"); d > 0 {
+		httpSrv.IdleTimeout = d
+	}
+
 	logger.Info("registry listening",
 		slog.String("addr", addr),
 		slog.String("data", dataDir),
 		slog.Float64("rate_limit_rps", rps),
 		slog.Int("rate_limit_burst", burst),
 		slog.Bool("trust_forwarded_for", trustFwd),
+		slog.Duration("read_header_timeout", httpSrv.ReadHeaderTimeout),
 	)
-	log.Fatal(http.ListenAndServe(addr, handler))
+	log.Fatal(httpSrv.ListenAndServe())
+}
+
+// readHeaderTimeout defaults to 10s (slowloris mitigation). Set REGISTRY_HTTP_READ_HEADER_TIMEOUT_SEC=0 to disable.
+func readHeaderTimeout() time.Duration {
+	s := strings.TrimSpace(os.Getenv("REGISTRY_HTTP_READ_HEADER_TIMEOUT_SEC"))
+	if s == "" {
+		return 10 * time.Second
+	}
+	n, err := strconv.Atoi(s)
+	if err != nil || n < 0 {
+		return 10 * time.Second
+	}
+	if n == 0 {
+		return 0
+	}
+	return time.Duration(n) * time.Second
+}
+
+func optionalTimeoutFromEnv(name string) time.Duration {
+	s := strings.TrimSpace(os.Getenv(name))
+	if s == "" {
+		return 0
+	}
+	n, err := strconv.Atoi(s)
+	if err != nil || n <= 0 {
+		return 0
+	}
+	return time.Duration(n) * time.Second
 }
 
 func envBool(s string) bool {

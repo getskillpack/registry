@@ -64,6 +64,7 @@ type ListResult struct {
 
 // Store is the registry persistence layer.
 type Store interface {
+	// Ping checks that persistence is reachable (readiness).
 	Ping(ctx context.Context) error
 	List(ctx context.Context, p ListParams) (ListResult, error)
 	GetSkill(ctx context.Context, name, publicBaseURL string) (*SkillDetail, error)
@@ -71,6 +72,4 @@ type Store interface {
 	OpenArchive(ctx context.Context, sha256Hex string) (io.ReadCloser, int64, error)
 	Publish(ctx context.Context, name, version string, description, author string, manifest json.RawMessage, archive []byte) error
 	Yank(ctx context.Context, name, version string) error
-	// Ping checks that persistence is reachable (for readiness probes).
-	Ping(ctx context.Context) error
 }
