@@ -10,6 +10,7 @@ Central registry and skill marketplace for the [getskillpack](https://github.com
 - **[API.md](./API.md)** — short pointer plus health, metrics, and auth notes (backward compatibility for older links).
 - **[docs/PUBLISH.md](./docs/PUBLISH.md)** — how to build an archive and publish a package (curl, secrets, CI).
 - **[docs/PUBLIC_REGISTRY_RUNBOOK.md](./docs/PUBLIC_REGISTRY_RUNBOOK.md)** — public instance: SLO/SLI, secrets, backups, alerts, go-live checklist (RU; FE2 alignment).
+- **[docs/REFERENCE_REGISTRY_OPERATIONS_RU.md](./docs/REFERENCE_REGISTRY_OPERATIONS_RU.md)** — short ops runbook: deploy/update, required env, health/readiness, logs, rollback placeholders, escalation (RU).
 - **[docs/PUBLIC_ECOSYSTEM.md](./docs/PUBLIC_ECOSYSTEM.md)** — which getskillpack repos are public, and what replaced the removed `skillget-manager` prototype.
 - **[docs/SKPKG_VS_PACKAGE_MANAGERS_RU.md](./docs/SKPKG_VS_PACKAGE_MANAGERS_RU.md)** — factual comparison of skpkg vs npm / Packagist / PyPI (Russian; for Growth/CMO messaging).
 - **Example skill package** — [`examples/hello-skill/`](./examples/hello-skill/) and a prebuilt archive [`examples/dist/hello-skill-0.1.0.tar.gz`](./examples/dist/hello-skill-0.1.0.tar.gz) (rebuild: `scripts/pack-example.sh`).
