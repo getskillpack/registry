@@ -23,6 +23,6 @@ Write routes (`POST /skills`, yank) require `Authorization: Bearer` matching **`
 
 If **`REGISTRY_READ_TOKEN`** is set, **read** access to **`GET`/`HEAD`** on `/api/v1/*` and `/downloads/*` requires `Authorization: Bearer <read token>`. `POST` and `DELETE` continue to use the write token on mutating routes.
 
-**CLI clients** (`skillget publish`): set **`SKILLGET_REGISTRY_TOKEN`** (canonical) or **`SKILLGET_TOKEN`** (short alias) so the client sends `Authorization: Bearer <token>`.
+**CLI clients** (`skillget publish`): set **`SKILLGET_REGISTRY_TOKEN`** (canonical) or **`SKILLGET_TOKEN`** (short alias) so the client sends `Authorization: Bearer <token>`. When the registry operator enables **`REGISTRY_READ_TOKEN`**, compiled clients must also send a read Bearer for `GET`/`HEAD` on `/api/v1/*` and for archive downloads — see the **Compiled core** section in [docs/registry-api.md](./docs/registry-api.md) and the client env table in [skillget-manager `REGISTRY_CLIENT_CONTRACT.md`](https://github.com/getskillpack/skillget-manager/blob/main/docs/REGISTRY_CLIENT_CONTRACT.md).
 
 Operational summary: root [README](./README.md) lists environment variables and rate limiting.

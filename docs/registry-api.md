@@ -17,6 +17,7 @@
 - **`archive_url`** в ответах — абсолютный URL вида `{publicBase}/downloads/{sha256_hex}.tar.gz`, где `sha256_hex` — 64 hex-символа (имя файла на диске реестра), **не** человекочитаемое имя скилла.
 - **`checksum`** — строка вида `sha256:` + тот же hex.
 - Регрессия контракта в репозитории: `go test ./...` (в т.ч. `TestRegistryFlow`, `TestPublishYankWriteContract`, `TestGETSkillDetailContract`), опционально удалённый smoke при `REGISTRY_SMOKE_BASE_URL` + `REGISTRY_SMOKE_WRITE_TOKEN`.
+- **Скомпилированный клиент (Go):** поведение библиотеки `github.com/getskillpack/skillget-manager` и таблица **переменных окружения клиента** (`SKILLGET_REGISTRY_URL`, алиас `SKPKG_REGISTRY_URL`; `SKILLGET_REGISTRY_READ_TOKEN` при включённом на сервере `REGISTRY_READ_TOKEN`; запись — `SKILLGET_REGISTRY_TOKEN` / `SKILLGET_TOKEN`) — в [`REGISTRY_CLIENT_CONTRACT.md`](https://github.com/getskillpack/skillget-manager/blob/main/docs/REGISTRY_CLIENT_CONTRACT.md). Там же зафиксировано, что канон HTTP-сервера — этот файл (раздел **Compiled core**).
 
 ### Статус-коды по маршрутам (ожидания клиента)
 
