@@ -1,6 +1,6 @@
 # Registry API Specification
 
-The canonical specification lives in **[docs/registry-api.md](./docs/registry-api.md)** — a stable path for links from README, marketing, and the site.
+The canonical specification lives in **[docs/registry-api.md](./docs/registry-api.md)** — a stable path for links from README, marketing, and the site. For **compiled HTTP clients** (skillget, smoke tests), start from the **«Compiled core»** section there: base URL, status codes, multipart publish, and `archive_url` / `checksum` rules.
 
 | Where | URL |
 |-------|-----|

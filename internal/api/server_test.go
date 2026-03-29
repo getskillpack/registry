@@ -183,6 +183,71 @@ func TestRegistryFlow(t *testing.T) {
 	}
 }
 
+// TestGETSkillDetailContract locks JSON shape for GET /api/v1/skills/{name} (compiled clients).
+func TestGETSkillDetailContract(t *testing.T) {
+	dir := t.TempDir()
+	st, err := store.NewFileStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("REGISTRY_PUBLIC_URL", "")
+
+	srv := &Server{
+		Store:       st,
+		WriteToken:  "contract-token",
+		DefaultAddr: "127.0.0.1:8080",
+	}
+	mux := http.NewServeMux()
+	srv.Register(mux)
+	ts := httptest.NewServer(mux)
+	t.Cleanup(ts.Close)
+
+	const skillName = "detail-contract-skill"
+	manifest := `{"name":"` + skillName + `","version":"1.2.3","description":"d","author":"acme"}`
+	pr := publishMultipart(t, ts.URL+"/api/v1/skills", "contract-token", manifest, []byte("skill-bytes"))
+	pr.Body.Close()
+	if pr.StatusCode != http.StatusCreated {
+		t.Fatalf("publish: %d", pr.StatusCode)
+	}
+
+	res, err := http.Get(ts.URL + "/api/v1/skills/" + skillName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("get skill: %d", res.StatusCode)
+	}
+	var detail store.SkillDetail
+	if err := json.NewDecoder(res.Body).Decode(&detail); err != nil {
+		t.Fatal(err)
+	}
+	if detail.Name != skillName || detail.Description != "d" || detail.Author != "acme" {
+		t.Fatalf("detail fields: %+v", detail)
+	}
+	if len(detail.Versions) != 1 {
+		t.Fatalf("versions: want 1, got %d", len(detail.Versions))
+	}
+	v, ok := detail.Versions["1.2.3"]
+	if !ok {
+		t.Fatalf("missing version key 1.2.3 in %#v", detail.Versions)
+	}
+	if v.Yanked {
+		t.Fatal("unexpected yanked")
+	}
+	if v.Checksum == "" || !strings.HasPrefix(v.Checksum, "sha256:") {
+		t.Fatalf("checksum: %q", v.Checksum)
+	}
+	hex := strings.TrimPrefix(v.Checksum, "sha256:")
+	if len(hex) != 64 {
+		t.Fatalf("want 64 hex chars, got len %d", len(hex))
+	}
+	wantArchive := ts.URL + "/downloads/" + hex + ".tar.gz"
+	if v.ArchiveURL != wantArchive {
+		t.Fatalf("archive_url: want %q got %q", wantArchive, v.ArchiveURL)
+	}
+}
+
 func TestWriteDisabledWithoutToken(t *testing.T) {
 	dir := t.TempDir()
 	st, err := store.NewFileStore(dir)

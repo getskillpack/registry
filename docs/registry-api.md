@@ -9,6 +9,44 @@
 
 ---
 
+## Compiled core: источник правды (HTTP)
+
+Для **скомпилированных клиентов** (CLI **skillget**, smoke **core-spike-go**, любые SDK поверх HTTP) канон контракта — **этот документ** плюс типы JSON в исходниках реестра [`internal/store/store.go`](https://github.com/getskillpack/registry/blob/main/internal/store/store.go) (`SkillSummary`, `SkillDetail`, `VersionPublicInfo`, `VersionRecord`). Реализация маршрутов: [`internal/api/server.go`](https://github.com/getskillpack/registry/blob/main/internal/api/server.go).
+
+- **Базовый URL API** — `{origin}/api/v1` без завершающего слэша в переменной окружения **`SKILLGET_REGISTRY_URL`** (клиенты склеивают пути вида `/skills`, `/skills/{name}/versions/{version}`).
+- **`archive_url`** в ответах — абсолютный URL вида `{publicBase}/downloads/{sha256_hex}.tar.gz`, где `sha256_hex` — 64 hex-символа (имя файла на диске реестра), **не** человекочитаемое имя скилла.
+- **`checksum`** — строка вида `sha256:` + тот же hex.
+- Регрессия контракта в репозитории: `go test ./...` (в т.ч. `TestRegistryFlow`, `TestPublishYankWriteContract`, `TestGETSkillDetailContract`), опционально удалённый smoke при `REGISTRY_SMOKE_BASE_URL` + `REGISTRY_SMOKE_WRITE_TOKEN`.
+
+### Статус-коды по маршрутам (ожидания клиента)
+
+| Метод | Путь (относительно `/api/v1`) | Успех | Типичные ошибки |
+|--------|-------------------------------|-------|------------------|
+| `GET` | `/skills` | `200` + JSON list | `401` если задан read-token |
+| `GET` | `/skills/{name}` | `200` + JSON detail | `404`, `401` |
+| `GET` | `/skills/{name}/versions/{version}` | `200` + JSON version | `404`, **`410`** после yank, `401` |
+| `POST` | `/skills` | **`201`** пустое тело | `400`, `401`, `409` дубликат версии, `503` без write token |
+| `DELETE` | `/skills/{name}/versions/{version}` | **`204`** | `401`, `404` |
+
+Тела ошибок — короткий `text/plain` от reference-сервера (не JSON).
+
+### Публикация: multipart
+
+`POST /skills`, `Content-Type: multipart/form-data`:
+
+| Поле | Содержимое |
+|------|------------|
+| `manifest` | JSON-строка; обязательны **`name`**, **`version`** (semver); используются также **`description`**, **`author`**. Дополнительные поля остаются в сохранённом manifest как JSON. |
+| `archive` | Файл `.tar.gz` (байты не пустые). |
+
+Заголовок: `Authorization: Bearer <write token>`.
+
+### Согласование с инженерными требованиями
+
+Детальный чеклист из `plans/ENGINEERING_REQUIREMENTS_SKPKG.md` живёт в onboarding / CTO workspace. **Расхождения с этим файлом** фиксируем в рабочем тикете компании (Paperclip) и при необходимости краткой сноской в этом разделе после review.
+
+---
+
 Base URL: `https://registry.skpkg.org/api/v1`
 
 ## Authentication
@@ -51,6 +89,25 @@ Search and list skills.
 ### 2. `GET /skills/:name`
 Get detailed information about a specific skill, including all published versions.
 
+**Response (shape):**
+```json
+{
+  "name": "para-memory-files",
+  "description": "File-based memory system using PARA",
+  "author": "company",
+  "created_at": "2026-03-27T00:00:00Z",
+  "versions": {
+    "1.0.4": {
+      "manifest": { "name": "para-memory-files", "version": "1.0.4" },
+      "checksum": "sha256:<64 hex chars>",
+      "archive_url": "https://registry.skpkg.org/downloads/<64 hex chars>.tar.gz",
+      "published_at": "2026-03-27T00:00:00Z",
+      "yanked": false
+    }
+  }
+}
+```
+
 ### 3. `GET /skills/:name/versions/:version`
 Get metadata and download URL for a specific version.
 
@@ -62,8 +119,8 @@ Get metadata and download URL for a specific version.
   "manifest": {
     "dependencies": {}
   },
-  "archive_url": "https://registry.skpkg.org/downloads/para-memory-files-1.0.4.tar.gz",
-  "checksum": "sha256:abc123def456..."
+  "archive_url": "https://registry.skpkg.org/downloads/<64 hex chars>.tar.gz",
+  "checksum": "sha256:<64 hex chars>"
 }
 ```
 
