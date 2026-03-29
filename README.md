@@ -2,7 +2,7 @@
 
 Central registry and skill marketplace for the [getskillpack](https://github.com/getskillpack) ecosystem.
 
-## For operators / Для операторов
+## For operators
 
 Russian-language ops quick reference (deploy/update, environment variables, health/readiness, logs, rollback outlines, escalation): [`docs/REFERENCE_REGISTRY_OPERATIONS_RU.md`](https://github.com/getskillpack/registry/blob/main/docs/REFERENCE_REGISTRY_OPERATIONS_RU.md).
 
