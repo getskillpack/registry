@@ -145,5 +145,6 @@
 ## 11. Связанные документы
 
 - [docs/registry-api.md](../docs/registry-api.md) — канонический контракт HTTP; [API.md](../API.md) — краткий указатель.
+- [REFERENCE_REGISTRY_OPERATIONS_RU.md](./REFERENCE_REGISTRY_OPERATIONS_RU.md) — краткий операционный runbook (деплой/обновление, health, логи, rollback, эскалация; плейсхолдеры для board).
 - [E2E_SMOKE.md](./E2E_SMOKE.md) — смоук skillget ↔ registry.
 - [README.md](../README.md) — локальный запуск и переменные (кратко).
