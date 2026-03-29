@@ -2,9 +2,17 @@
 
 Central registry and skill marketplace for the [getskillpack](https://github.com/getskillpack) ecosystem.
 
-## For operators / Для операторов
+## For operators
 
 Russian-language ops quick reference (deploy/update, environment variables, health/readiness, logs, rollback outlines, escalation): [`docs/REFERENCE_REGISTRY_OPERATIONS_RU.md`](https://github.com/getskillpack/registry/blob/main/docs/REFERENCE_REGISTRY_OPERATIONS_RU.md).
+
+### Where things live
+
+Pointers into ecosystem documentation (no duplicate runbook prose here — follow the links):
+
+- **Ops / runbooks (this repository):** [`docs/PUBLIC_REGISTRY_RUNBOOK.md`](./docs/PUBLIC_REGISTRY_RUNBOOK.md) (public instance SLO, secrets, backups, alerts) · [`docs/REFERENCE_REGISTRY_OPERATIONS_RU.md`](./docs/REFERENCE_REGISTRY_OPERATIONS_RU.md) (short deploy/update and operations outline)
+- **Compatibility matrix** (CLI, skillget-manager, registry): [`COMPATIBILITY_MATRIX_RU.md`](https://github.com/getskillpack/cli/blob/main/docs/COMPATIBILITY_MATRIX_RU.md) — cross-repo alignment (delivery context: Paperclip **XDE-100**).
+- **CLI + skillget-manager + traceability to requirements / tickets:** [`ENGINEERING_REQUIREMENTS_TRACEABILITY_RU.md`](https://github.com/getskillpack/cli/blob/main/docs/ENGINEERING_REQUIREMENTS_TRACEABILITY_RU.md) (delivery context: Paperclip **XDE-99**).
 
 ## Contents
 
